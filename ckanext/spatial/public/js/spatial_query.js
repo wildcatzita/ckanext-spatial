@@ -162,6 +162,7 @@ this.ckan.module('spatial-query', function ($, _) {
       var previous_extent;
       var is_exanded = false;
       var should_zoom = true;
+      var default_drawn = false;
       var form = $("#dataset-search");
       var map_attribution = $('#dataset-map-attribution');
       var map_nav = $('#dataset-map-nav');
@@ -208,6 +209,8 @@ this.ckan.module('spatial-query', function ($, _) {
       }));
       map.addControl(new L.Control.Arrow());
 
+      $('#dataset-map-clear').on('click', clearMap)
+
       // OK add the expander
       $('.leaflet-control-draw a', module.el)
         .add($('.show-map-link', map_nav))
@@ -215,8 +218,12 @@ this.ckan.module('spatial-query', function ($, _) {
           if (!is_exanded) {
             map_nav.hide();
             $('body').addClass('dataset-map-expanded');
-            if (should_zoom && !extentLayer) {
-              map.zoomIn();
+
+            if (!extentLayer) {
+
+              if (should_zoom){
+                map.zoomIn();
+              }
             } else if (extentLayer){
               map.fitBounds(extentLayer.getBounds());
             }
@@ -237,9 +244,12 @@ this.ckan.module('spatial-query', function ($, _) {
       // Handle the cancel expanded action
       $('.cancel', buttons).on('click', function() {
         map_nav.show();
-        $('body').removeClass('dataset-map-expanded');
+        $('body').removeClass('dataset-map-expanded  dataset-map-layer-drawn');
+        show_map_link.parent().removeClass('active');
+
         if (extentLayer) {
           map.removeLayer(extentLayer);
+          extentLayer = null;
         }
         setPreviousBBBox();
         setPreviousExtent();
@@ -248,7 +258,8 @@ this.ckan.module('spatial-query', function ($, _) {
       });
 
       // Handle the apply expanded action
-      $('.apply', buttons).on('click', function() {
+      $('.apply', buttons).on('click', function(event) {
+        if ($(event.target).hasClass('disabled')) return;
         if (extentLayer) {
           $('body').removeClass('dataset-map-expanded');
           is_exanded = false;
@@ -284,6 +295,11 @@ this.ckan.module('spatial-query', function ($, _) {
         bbox_preparations();
 
         drawRect(e.rect);
+
+        var drawSelectedBtn = $('.extended-map-show-form a');
+        if (drawSelectedBtn.hasClass('active')){
+          drawSelectedBtn.trigger('click');
+        }
       });
 
       // Record the current map view so we can replicate it after submitting
@@ -296,6 +312,9 @@ this.ckan.module('spatial-query', function ($, _) {
 
       setPreviousBBBox();
       setPreviousExtent();
+      if(!$('body').is('.dataset-map-layer-drawn')){
+        $('#dataset-map-container').css('position', 'absolute');
+      }
 
       // OK, when we expand we shouldn't zoom then
       map.on('zoomstart', function() {
@@ -315,6 +334,8 @@ this.ckan.module('spatial-query', function ($, _) {
           map.removeLayer(extentLayer);
         }
         drawBBox(map.getBounds().toBBoxString());
+        $('body').addClass('dataset-map-layer-drawn');
+        apply_switch(false);
       }
 
       function drawRect(rect) {
@@ -327,41 +348,40 @@ this.ckan.module('spatial-query', function ($, _) {
         fillForm(bbox_string);
         map.addLayer(extentLayer);
         map.fitBounds(extentLayer.getBounds());
-        $('.apply', buttons).removeClass('disabled').addClass('btn-primary');
+        apply_switch(true);
       }
 
       // Is there an existing box from a previous search?
       function setPreviousBBBox() {
-        var rect, fallback_default;
         previous_bbox = module._getParameterByName('ext_bbox');
-        if (module.options.draw_default && module.options.default_extent) {
-          fallback_default = getRectFromCoordinates(
-            module.options.default_extent)
-            .getBounds()
-            .toBBoxString();
-        }
-        rect = previous_bbox || fallback_default;
-        if (rect) {
+        if (previous_bbox) {
           bbox_preparations();
-          drawBBox(rect);
+          drawBBox(previous_bbox);
         } else {
           fillForm(null);
         }
       }
 
-      function drawBBox(bbox) {
+      function drawBBox(bbox, is_default) {
+        default_drawn = is_default;
         $('#ext_bbox').val(bbox);
         extentLayer = module._drawExtentFromCoords(bbox.split(','));
         fillForm(bbox);
         map.addLayer(extentLayer);
+        apply_switch(true);
       }
 
       // Is there an existing extent from a previous search?
       function setPreviousExtent() {
-        previous_extent = module._getParameterByName('ext_prev_extent');
+        previous_extent = module._getParameterByName('ext_bbox') ||
+        module._getParameterByName('ext_prev_extent');
         if (previous_extent) {
           var coords = previous_extent.split(',');
-          map.fitBounds([[coords[1], coords[0]], [coords[3], coords[2]]]);
+          var prev_bounds = module._drawExtentFromCoords(coords).getBounds();
+          setTimeout(function() {
+            map.fitBounds(prev_bounds);
+          }, 0);
+
         } else {
           if (!previous_bbox){
               map.fitBounds(module.options.default_extent);
@@ -388,11 +408,38 @@ this.ckan.module('spatial-query', function ($, _) {
 
       function toggleCoordinateForm(event) {
         $(event.target).toggleClass('active').parent().toggleClass('active');
+
+        if (module.options.draw_default && module.options.default_extent) {
+          console.log(default_drawn, extentLayer);
+          if (!default_drawn && !extentLayer) {
+            fallback_default = getRectFromCoordinates(
+              module.options.default_extent)
+              .getBounds();
+
+            drawBBox(fallback_default.toBBoxString(), true);
+          } else if(default_drawn) {
+            clearMap();
+            extentLayer = null;
+            default_drawn = false;
+          }
+        }
+      }
+
+      function clearMap(event) {
+        event && event.preventDefault();
+        $('body').removeClass('dataset-map-layer-drawn');
+        if (extentLayer) {
+          map.removeLayer(extentLayer);
+          $('#ext_bbox').val('');
+        }
+        fillForm(null);
+        apply_switch(false);
       }
 
       function fillForm(bounds){
         if (bounds === null) {
           $('.extended-map-form input').val('');
+          $('#ext_bbox').val('');
           return;
         }
         var b = $.map(bounds.split(','), function(e){
@@ -403,6 +450,15 @@ this.ckan.module('spatial-query', function ($, _) {
           aForm[i].val(b[i]).trigger('change');
         }
 
+      }
+
+      function apply_switch(state) {
+        var ab = $('.apply', buttons);
+        if (state){
+          ab.removeClass('disabled').addClass('btn-primary');
+        } else {
+          ab.removeClass('btn-primary').addClass('disabled');
+        }
       }
 
     }

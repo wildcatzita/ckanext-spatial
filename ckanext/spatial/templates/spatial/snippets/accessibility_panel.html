@@ -5,17 +5,6 @@
       <a href="javascript:;" class="btn btn-primary">{{ _('Enter coordinates') }}</a>
     {% endblock %}
   </div>
-  {% block extended_map_help %}
-    <div class="extended-map-help">
-      {% trans %}
-        <ul>
-          Select a location extent by:
-          <li>Drawing an extent box, or</li>
-          <li>Enter the latitude and longitude coordinates.</li>
-        </ul>
-      {% endtrans %}
-    </div>
-  {% endblock %}
   {% block extended_map_form %}
     <div class="extended-map-form">
       <div class="coord-field">
@@ -45,6 +34,17 @@
         <a href="javascript:;" id="extended-map-update" class="btn btn-primary">{{ _('Update coordinates') }}</a>
         <a href="javascript:;" id="extended-map-reset" class="btn">{{ _('Reset coordinates to current map view') }}</a>
       </div>
+    </div>
+  {% endblock %}
+  {% block extended_map_help %}
+    <div class="extended-map-help">
+      {% trans %}
+        <ul>
+          Select a location extent by:
+          <li>Drawing an extent box, or</li>
+          <li>Enter the latitude and longitude coordinates.</li>
+        </ul>
+      {% endtrans %}
     </div>
   {% endblock %}
 </div>
