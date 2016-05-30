@@ -243,9 +243,15 @@ this.ckan.module('spatial-query', function ($, _) {
 
       // Handle the cancel expanded action
       $('.cancel', buttons).on('click', function() {
+
         map_nav.show();
         $('body').removeClass('dataset-map-expanded  dataset-map-layer-drawn');
         show_map_link.parent().removeClass('active');
+
+        var show_form = $('.extended-map-show-form a');
+        if (show_form.hasClass('active')) {
+          show_form.trigger('click');
+        }
 
         if (extentLayer) {
           map.removeLayer(extentLayer);
@@ -287,6 +293,7 @@ this.ckan.module('spatial-query', function ($, _) {
           ]);
 
           drawRect(rect);
+          default_drawn = false;
         }
       });
 
