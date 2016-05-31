@@ -342,7 +342,6 @@ this.ckan.module('spatial-query', function ($, _) {
         }
         drawBBox(map.getBounds().toBBoxString());
         $('body').addClass('dataset-map-layer-drawn');
-        apply_switch(false);
       }
 
       function drawRect(rect) {
@@ -417,17 +416,12 @@ this.ckan.module('spatial-query', function ($, _) {
         $(event.target).toggleClass('active').parent().toggleClass('active');
 
         if (module.options.draw_default && module.options.default_extent) {
-          console.log(default_drawn, extentLayer);
           if (!default_drawn && !extentLayer) {
             fallback_default = getRectFromCoordinates(
               module.options.default_extent)
               .getBounds();
 
             drawBBox(fallback_default.toBBoxString(), true);
-          } else if(default_drawn) {
-            clearMap();
-            extentLayer = null;
-            default_drawn = false;
           }
         }
       }
@@ -437,10 +431,10 @@ this.ckan.module('spatial-query', function ($, _) {
         $('body').removeClass('dataset-map-layer-drawn');
         if (extentLayer) {
           map.removeLayer(extentLayer);
-          $('#ext_bbox').val('');
+          // $('#ext_bbox').val('');
         }
-        fillForm(null);
-        apply_switch(false);
+        // fillForm(null);
+        // apply_switch(false);
       }
 
       function fillForm(bounds){

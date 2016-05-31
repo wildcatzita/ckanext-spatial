@@ -55,6 +55,9 @@
   -o-border-radius: 5px;
   border-radius: 5px;
 }
+div[style*="crosshair"] .leaflet-clickable{
+  cursor: crosshair;
+}
 .dataset-map-expanded #dataset-map {
   position: absolute;
   width: 100%;
