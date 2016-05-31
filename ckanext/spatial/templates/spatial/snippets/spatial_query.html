@@ -19,7 +19,9 @@ e.g.
   </h2>
   <ul class="unstyled nav nav-simple nav-facet nav-dataset-map" id="dataset-map-nav">
     <li class="nav-item">
-        <a href="#" class="show-map-link">{{ _('Select location extent') }}</a>
+        <a href="#" class="show-map-link">{{ _('Select location extent') }}
+          <i class="icon-remove-sign"></i>
+        </a>
     </li>
   </ul>
   {% set map_config = h.get_common_map_config() %}
@@ -31,6 +33,7 @@ e.g.
   <div id="dataset-map-attribution">
     {% snippet "spatial/snippets/map_attribution.html", map_config=map_config %}
   </div>
+  <div class="module-footer"></div>
 </section>
 
 {% resource 'ckanext-spatial/spatial_query' %}
