@@ -220,7 +220,6 @@ this.ckan.module('spatial-query', function ($, _) {
             $('body').addClass('dataset-map-expanded');
 
             if (!extentLayer) {
-
               if (should_zoom){
                 map.zoomIn();
               }
@@ -320,7 +319,9 @@ this.ckan.module('spatial-query', function ($, _) {
       setPreviousBBBox();
       setPreviousExtent();
       if(!$('body').is('.dataset-map-layer-drawn')){
-        $('#dataset-map-container').css('position', 'absolute');
+        setTimeout(function() {
+          $('#dataset-map-container').css('position', 'absolute');
+        }, 0);
       }
 
       // OK, when we expand we shouldn't zoom then
@@ -431,9 +432,11 @@ this.ckan.module('spatial-query', function ($, _) {
         $('body').removeClass('dataset-map-layer-drawn');
         if (extentLayer) {
           map.removeLayer(extentLayer);
-          // $('#ext_bbox').val('');
         }
-        // fillForm(null);
+        var ext_bb = $('#ext_bbox');
+        $('#ext_prev_extent').val(ext_bb.val());
+        ext_bb.val('');
+        fillForm(null);
         // apply_switch(false);
       }
 
