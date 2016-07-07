@@ -19,9 +19,9 @@ e.g.
               {% for coord in bbox.split(',') %}
                 {{ loop.cycle(
                   _('West longitude'),
-                  _('North latitude'),
+                  _('South latitude'),
                   _('East longitude'),
-                  _('South latitude'))
+                  _('North latitude'))
                 }}
                 {{ coord|float|round(5) }}&deg;{% if not loop.last %},{% endif %}
               {% endfor %}
