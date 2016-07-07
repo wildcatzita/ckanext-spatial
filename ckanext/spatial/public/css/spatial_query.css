@@ -61,7 +61,7 @@ div[style*="crosshair"] .leaflet-clickable{
 .dataset-map-expanded #dataset-map {
   position: absolute;
   width: 100%;
-  height: 384px;
+  height: 410px;
   top: -384px;
   left: 0;
   background-color: white;
@@ -103,6 +103,15 @@ div[style*="crosshair"] .leaflet-clickable{
   padding: 15px;
   padding-right: 22px;
   padding-bottom: 0;
+}
+.dataset-map-expanded .dataset-map{
+ height: 300px;
+}
+.extended-map-help li{
+  margin-left: 15px;
+}
+#dataset-map .module-footer{
+  border-top: none;
 }
 .dataset-map-expanded #dataset-map,
 .dataset-map-expanded #dataset-map-clear,
