@@ -10,7 +10,7 @@ from pylons import config
 from ckan import plugins as p
 
 from ckan.lib.helpers import json
-
+import shapely.geometry
 
 def check_geoalchemy_requirement():
     '''Checks if a suitable geoalchemy version installed
